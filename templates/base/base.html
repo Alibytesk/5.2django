@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>{% block title %} {% endblock %}</title>
+    {% include 'includes/head_references.html' %}
+</head>
+<body class="animsition">
+
+	<!-- Header -->
+	{% include 'includes/header.html' %}
+
+	<!-- Cart -->
+	{% include 'includes/cart.html' %}
+{% block content %}
+
+
+
+
+{% endblock %}
+	<!-- Footer -->
+    {% include 'includes/footer.html' %}
+
+
+	<!-- Back to top -->
+	<div class="btn-back-to-top" id="myBtn">
+		<span class="symbol-btn-back-to-top">
+			<i class="zmdi zmdi-chevron-up"></i>
+		</span>
+	</div>
+
+	<!-- Modal1 -->
+	{% include 'includes/modal1.html' %}
+
+    {% include 'includes/footer_references.html' %}
+
+</body>
+</html>
