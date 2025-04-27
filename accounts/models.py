@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 import itertools
 import re
+from datetime import timedelta
+from django.utils import timezone
+
 
 class UserManager(models.Manager):
     def create_user(self, phone, username=None, email=None, password=None, **extra_fields):
@@ -129,3 +132,13 @@ class User(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+
+class OTPcheck(models.Model):
+    code = models.SmallIntegerField()
+    token = models.CharField(max_length=255)
+    phone = models.CharField(max_length=11)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def otp_clean():
+        OTPcheck.objects.filter(created_at__lt=(timezone.now() - timedelta(minutes=5))).delete()

@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from accounts.models import User
+from django.core import validators
 
 class UserCreationForm(forms.ModelForm):
     password1 = forms.CharField(
@@ -33,3 +34,66 @@ class UserChangeForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('phone', 'username', 'email', 'password', 'is_active', 'is_admin')
+
+
+class LoginForm(forms.Form):
+
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'Your Username, Phone or Email Address'})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder': 'Password'})
+    )
+
+class PhoneValidation:
+    @staticmethod
+    def is_phone_start_with_09(phone: str):
+        if not phone.startswith('09'):
+            raise forms.ValidationError('phone should start with 09')
+
+class RegisterForm(forms.Form):
+
+    phone = forms.CharField(
+        validators=(validators.MaxLengthValidator(11), PhoneValidation.is_phone_start_with_09,),
+        widget=forms.NumberInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'Phone Number'})
+    )
+
+class OTPcheckForm(forms.Form):
+    code = forms.CharField(
+        validators=(validators.MaxLengthValidator(4),),
+        widget=forms.NumberInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'code'})
+    )
+    username = forms.CharField(
+        validators=(validators.MaxLengthValidator(40), validators.MinLengthValidator(4),),
+        widget=forms.TextInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'username'})
+    )
+    email = forms.EmailField(
+        validators=(validators.EmailValidator,),
+        widget=forms.EmailInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'Email'})
+    )
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'Password'})
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'Confirmation Password'})
+    )
+
+    def clean_password1(self):
+        password1, errors, special_char = self.cleaned_data.get('password1'), list(), '!@#$%^&*'
+        if not password1:
+            raise ValueError('users must have a strong password')
+        else:
+            if not any(i.isdigit() for i in password1):
+                errors.append('password must contain at least one number')
+            if not any(i in special_char for i in password1):
+                errors.append('password must contain at least one special character')
+            if not any(i.isupper() for i in password1):
+                errors.append('password must contain at least one uppercase character')
+            if not any(i.islower() for i in password1):
+                errors.append('password must contain at least one lowercase character')
+            if len(password1) < 8:
+                errors.append('password must be at least 8 character')
+            if not errors:
+                return password1
+            else:
+                raise forms.ValidationError(errors)
