@@ -115,8 +115,8 @@ class User(AbstractBaseUser):
         null=False,
         blank=False,
     )
-    username = models.CharField(unique=True, max_length=255, blank=True)
-    email = models.EmailField(unique=True, max_length=255, blank=True)
+    username = models.CharField(unique=True, max_length=255, blank=True, null=True)
+    email = models.EmailField(unique=True, max_length=255, blank=True, null=True)
     firstname = models.CharField(max_length=255, null=True, blank=True)
     lastname = models.CharField(max_length=255, null=True, blank=True)
     image = models.ImageField(upload_to='users_images', null=True, blank=True)
