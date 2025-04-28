@@ -128,6 +128,33 @@ class CreateAccountView(AnonymousRequiredMixin, View):
         else:
             return redirect('home:home')
 
+class ChangePasswordView(LoginRequiredMixin, View):
+
+    def get(self, request):
+        form = ChangePasswordForm()
+        return render(request, 'accounts/authenticate.html', context={'form':form})
+
+    def post(self, request):
+        form = ChangePasswordForm(data=request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            if cleaned_data['password1'] == cleaned_data['password2']:
+                user = User.objects.get(phone=request.user.phone)
+                if user.check_password(cleaned_data['current_password']):
+                    if not cleaned_data['current_password'] == cleaned_data['password1']:
+                        user.set_password(cleaned_data['password1'])
+                        user.save()
+                        messages.success(request, 'password updated successfully')
+                        return redirect('accounts:login')
+                    else:
+                        form.add_error('password1', 'current password and new password are same')
+                else:
+                    form.add_error('current_password', 'invalid current password')
+            else:
+                form.add_error('password2', 'password do not match')
+        return render(request, 'accounts/authenticate.html', context={'form':form})
+
+
 class LogoutView(View):
 
     def get(self, request):

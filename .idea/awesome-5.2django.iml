@@ -20,6 +20,10 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="OwlCarousel2" level="application" />
   </component>
+  <component name="PyDocumentationSettings">
+    <option name="format" value="PLAIN" />
+    <option name="myDocStringFormat" value="Plain" />
+  </component>
   <component name="TemplatesService">
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
   </component>

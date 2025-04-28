@@ -58,6 +58,28 @@ class RegisterForm(forms.Form):
         widget=forms.NumberInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'Phone Number'})
     )
 
+class PasswordValidation:
+    @staticmethod
+    def password_validator(password1):
+        errors, special_char = list(), '!@#$%^&*'
+        if not password1:
+            raise ValueError('users must have a strong password')
+        else:
+            if not any(i.isdigit() for i in password1):
+                errors.append('password must contain at least one number')
+            if not any(i in special_char for i in password1):
+                errors.append('password must contain at least one special character')
+            if not any(i.isupper() for i in password1):
+                errors.append('password must contain at least one uppercase character')
+            if not any(i.islower() for i in password1):
+                errors.append('password must contain at least one lowercase character')
+            if len(password1) < 8:
+                errors.append('password must be at least 8 character')
+            if not errors:
+                return password1
+            else:
+                raise forms.ValidationError(errors)
+
 class OTPcheckForm(forms.Form):
     code = forms.CharField(
         validators=(validators.MaxLengthValidator(4),),
@@ -79,21 +101,18 @@ class OTPcheckForm(forms.Form):
     )
 
     def clean_password1(self):
-        password1, errors, special_char = self.cleaned_data.get('password1'), list(), '!@#$%^&*'
-        if not password1:
-            raise ValueError('users must have a strong password')
-        else:
-            if not any(i.isdigit() for i in password1):
-                errors.append('password must contain at least one number')
-            if not any(i in special_char for i in password1):
-                errors.append('password must contain at least one special character')
-            if not any(i.isupper() for i in password1):
-                errors.append('password must contain at least one uppercase character')
-            if not any(i.islower() for i in password1):
-                errors.append('password must contain at least one lowercase character')
-            if len(password1) < 8:
-                errors.append('password must be at least 8 character')
-            if not errors:
-                return password1
-            else:
-                raise forms.ValidationError(errors)
+        return PasswordValidation.password_validator(self.cleaned_data['password1'])
+
+class ChangePasswordForm(forms.Form):
+    current_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'Current-Password'})
+    )
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'new password'})
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'confirmation password'})
+    )
+
+    def clean_password1(self):
+        return PasswordValidation.password_validator(self.cleaned_data.get('password1'))

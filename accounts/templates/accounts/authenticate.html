@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %} {% if request.resolver_match.url_name == 'create-account' %} Register {% else %} {{ request.resolver_match.url_name|title }} {% endif %} {% endblock %}
+{% block title %} {% if request.resolver_match.url_name == 'create-account' %} Register {% elif request.resolver_match.url_name == 'change-password' %} Change Password {% else %} {{ request.resolver_match.url_name|title }} {% endif %} {% endblock %}
 {% block content %}
 	<!-- authentication page -->
 	<section class="bg0 p-t-104 p-b-116">
@@ -10,7 +10,7 @@
 					<form method="post">
                         {% csrf_token %}
 						<h4 class="mtext-105 cl2 txt-center p-b-30">
-							{% if request.resolver_match.url_name == 'create-account' %} Register {% else %} {{ request.resolver_match.url_name|title }} {% endif %}
+							{% if request.resolver_match.url_name == 'create-account' %} Register {% elif request.resolver_match.url_name == 'change-password' %} Change Password {% else %} {{ request.resolver_match.url_name|title }} {% endif %}
 						</h4>
                         {% for field in form %}
                             {% if field.errors %}
@@ -27,7 +27,7 @@
                             <a href="#">Login</a>
                         {% endif %}
 						<button class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer" style="margin-top: 20px">
-							{% if request.resolver_match.url_name == 'create-account' %} REGISTER {% else %} {{ request.resolver_match.url_name }} {% endif %}
+							{% if request.resolver_match.url_name == 'create-account' %} REGISTER {% elif request.resolver_match.url_name == 'change-password' %} Change {% else %} {{ request.resolver_match.url_name }} {% endif %}
 						</button>
 					</form>
 				</div>
