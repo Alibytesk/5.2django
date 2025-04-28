@@ -13,5 +13,8 @@ urlpatterns = [
     path('forgot-pass', views.ForgotPassView.as_view(), name='forgot-pass'),
     path('forgot-password', views.EmailCheckView.as_view(), name='forgot-password'),
     path('resetpassword/<uidb64>/<str:token>', views.ResetPasswordView.as_view(), name='resetpassword'),
-    path('setpassword', views.SetPasswordView.as_view(), name='setpassword')
+    path('setpassword', views.SetPasswordView.as_view(), name='setpassword'),
+    path('forgotpassword', views.PhoneCheckView.as_view(), name='forgotpassword'),
+    path('phone-authentication', views.CodeCheckView.as_view(), name='phone-authentication'),
+    path('set-password', views.PHResetPasswordView.as_view(), name='set-password')
 ]

@@ -133,21 +133,37 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
-class OTPcheck(models.Model):
+class CreatedAtModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        abstract = True
+
+class OTPcheck(CreatedAtModel):
     code = models.SmallIntegerField()
     token = models.CharField(max_length=255)
     phone = models.CharField(max_length=11)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
     def otp_clean():
         OTPcheck.objects.filter(created_at__lt=(timezone.now() - timedelta(minutes=5))).delete()
 
-class VerifyEmailCode(models.Model):
+class VerifyEmailCode(CreatedAtModel):
     user = models.ForeignKey(User, related_name='verifyemailcode', on_delete=models.CASCADE)
     code = models.SmallIntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
 
     @staticmethod
     def verify_email_code_clean():
         VerifyEmailCode.objects.filter(created_at__lt=(timezone.now() - timedelta(minutes=10))).delete()
+
+class Auth2fa(CreatedAtModel):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    code = models.SmallIntegerField()
+    phone = models.CharField(max_length=11)
+    token = models.CharField(max_length=255, null=True, blank=True)
+
+    @staticmethod
+    def clean_2fa():
+        Auth2fa.objects.filter(created_at__lt=(timezone.now() - timedelta(minutes=10))).delete()
+

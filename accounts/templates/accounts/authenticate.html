@@ -16,7 +16,8 @@
                             {% if request.resolver_match.url_name == 'create-account' %}
                                 Register {% elif request.resolver_match.url_name == 'change-password' %} Change
                                 Password {% elif request.resolver_match.url_name == 'email-verify' %} Email
-                                Verification {% elif request.resolver_match.url_name == 'forgot-pass' %} {% elif request.resolver_match.url_name == 'forgot-password' %}
+                                Verification {% elif request.resolver_match.url_name == 'forgot-pass' %}
+                                {% elif request.resolver_match.url_name == 'forgot-password' or request.resolver_match.url_name == 'forgotpassword' %}
                                 Forgot Password {% else %} {{ request.resolver_match.url_name|title }} {% endif %}
                         </h4>
                         {% for field in form %}
@@ -39,11 +40,12 @@
                                 {% if request.resolver_match.url_name == 'create-account' %}
                                     REGISTER {% elif request.resolver_match.url_name == 'change-password' %}
                                     Change {% elif request.resolver_match.url_name == 'email-verify' %}
-                                    verify {% elif request.resolver_match.url_name == 'forgot-password' %}
+                                    verify
+                                    {% elif request.resolver_match.url_name == 'forgot-password' or request.resolver_match.url_name == 'forgotpassword' %}
                                     send {% else %} {{ request.resolver_match.url_name }} {% endif %}
                             </button>
                         {% else %}
-                            <a href="#"
+                            <a href="{% url 'accounts:forgotpassword' %}"
                                class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer">Phone</a>
                             <a href="{% url 'accounts:forgot-password' %}"
                                class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer"

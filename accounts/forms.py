@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.core.validators import MaxLengthValidator, MinLengthValidator
 from accounts.models import User
 from django.core import validators
 
@@ -140,3 +141,15 @@ class SetPasswordForm(forms.Form):
 
     def clean_password1(self):
         return PasswordValidation.password_validator(self.cleaned_data.get('password1'))
+
+class PhoneCheckForm(forms.Form):
+    phone = forms.CharField(
+        validators=(MaxLengthValidator(11), MinLengthValidator(11), PhoneValidation.is_phone_start_with_09,),
+        widget=forms.NumberInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'Phone Number'})
+    )
+
+class CodeCheckForm(forms.Form):
+    code = forms.CharField(
+        validators=(MaxLengthValidator(6), MinLengthValidator(6),),
+        widget=forms.NumberInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'code'})
+    )

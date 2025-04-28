@@ -175,7 +175,9 @@ class EmailCheckView(AnonymousRequiredMixin, View):
                 return redirect('accounts:login')
             else:
                 form.add_error('email', 'this email is not exists')
-        return render(request, 'accounts/authenticate.html', context={'form':form})
+            return render(request, 'accounts/authenticate.html', context={'form':form})
+        else:
+            return redirect('accounts:forgot-pass')
 
 class ResetPasswordView(AnonymousRequiredMixin, View):
 
@@ -205,6 +207,7 @@ class SetPasswordView(AnonymousRequiredMixin, View):
                 if cleaned_data['password1'] == cleaned_data['password2']:
                     user.set_password(cleaned_data.get('password1'))
                     user.save()
+                    request.session.pop('uid', None)
                     messages.success(request, 'password reset successfully')
                     return redirect('accounts:login')
                 else:
@@ -219,6 +222,103 @@ class SetPasswordView(AnonymousRequiredMixin, View):
             return render(request, 'accounts/authenticate.html', context={'form':form})
         else:
             return redirect('accounts:login')
+
+class PhoneCheckView(AnonymousRequiredMixin, View):
+
+    def get(self, request):
+        Auth2fa.clean_2fa()
+        form = PhoneCheckForm()
+        return render(request, 'accounts/authenticate.html', context={'form':form})
+
+    def post(self, request):
+        Auth2fa.clean_2fa()
+        form = PhoneCheckForm(data=request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            _user = User.objects.filter(Q(phone__exact=str(cleaned_data['phone'])))
+            if _user.exists():
+                user = _user.first()
+                auth2fa = Auth2fa.objects.filter(phone=str(cleaned_data.get('phone')))
+                if auth2fa.exists():
+                    auth2fa.first().delete()
+                code, token = randint(111111, 999999), get_random_string(length=255)
+                # need Api, to send code to phone number like user.phone
+                Auth2fa.objects.create(
+                    user=user,
+                    code=code,
+                    phone=cleaned_data['phone'],
+                    token=token
+                )
+                request.session['phone'] = str(cleaned_data['phone'])
+                messages.success(request, 'send code successfully')
+                return redirect(reverse('accounts:phone-authentication') + f"?token={token}")
+            else:
+                form.add_error('phone', 'this phone number is not exists')
+        return render(request, 'accounts/authenticate.html', context={'form':form})
+
+class CodeCheckView(AnonymousRequiredMixin, View):
+
+    def get(self, request):
+        Auth2fa.clean_2fa()
+        if Auth2fa.objects.filter(token=request.GET.get('token')).exists():
+            form = CodeCheckForm()
+            return render(request, 'accounts/authenticate.html', context={'form':form})
+        else:
+            return redirect('accounts:forgot-pass')
+
+    def post(self, request):
+        Auth2fa.clean_2fa()
+        if Auth2fa.objects.filter(token=request.GET.get('token')).exists():
+            form = CodeCheckForm(data=request.POST)
+            if form.is_valid():
+                cleaned_data = form.cleaned_data
+                _2fa_object = Auth2fa.objects.filter(
+                    Q(code__exact=cleaned_data['code']) &
+                    Q(token=request.GET.get('token')) &
+                    Q(phone=request.session['phone'])
+                )
+                if _2fa_object.exists():
+                    return redirect(reverse('accounts:set-password') + f"?token={_2fa_object.first().token}")
+                else:
+                    form.add_error('code', 'incorrect code')
+            return render(request, 'accounts/authenticate.html', context={'form':form})
+        else:
+            return redirect('accounts:forgot-pass')
+
+class PHResetPasswordView(AnonymousRequiredMixin, View):
+
+    def post(self, request):
+        __2fa_object = Auth2fa.objects.filter(
+            Q(token=request.GET.get('token')) &
+            Q(phone=request.session['phone'])
+        )
+        if __2fa_object.exists():
+            _2fa_object = __2fa_object.first()
+            form = SetPasswordForm(data=request.POST)
+            if form.is_valid():
+                cleaned_data = form.cleaned_data
+                user = User.objects.get(phone=_2fa_object.phone)
+                if cleaned_data['password1'] == cleaned_data['password2']:
+                    user.set_password(cleaned_data['password1'])
+                    user.save()
+                    messages.success(request, 'successfully reset password')
+                    request.session.pop('phone', None)
+                    _2fa_object.delete()
+                    return redirect('accounts:login')
+                else:
+                    form.add_error('password2', 'password do not match')
+            return render(request, 'accounts/authenticate.html', context={'form':form})
+        return redirect('accounts:forgot-pass')
+
+    def get(self, request):
+        if Auth2fa.objects.filter(
+            Q(token=request.GET.get('token')) &
+            Q(phone=request.session['phone'])
+        ).exists():
+            form = SetPasswordForm()
+            return render(request, 'accounts/authenticate.html', context={'form':form})
+        else:
+            return redirect('accounts:forgot-pass')
 
 class ChangePasswordView(LoginRequiredMixin, View):
 
@@ -311,7 +411,7 @@ class EmailVerifyView(LoginRequiredMixin, View):
 
 
 
-class LogoutView(View):
+class LogoutView(LoginRequiredMixin, View):
 
     def get(self, request):
         logout(request)
