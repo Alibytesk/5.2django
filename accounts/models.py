@@ -142,3 +142,12 @@ class OTPcheck(models.Model):
     @staticmethod
     def otp_clean():
         OTPcheck.objects.filter(created_at__lt=(timezone.now() - timedelta(minutes=5))).delete()
+
+class VerifyEmailCode(models.Model):
+    user = models.ForeignKey(User, related_name='verifyemailcode', on_delete=models.CASCADE)
+    code = models.SmallIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def verify_email_code_clean():
+        VerifyEmailCode.objects.filter(created_at__lt=(timezone.now() - timedelta(minutes=10))).delete()

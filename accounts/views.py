@@ -1,14 +1,29 @@
-from django.shortcuts import render, redirect
-from django.views.generic import View
-from django.contrib.auth import authenticate, login, logout
-from django.db.models import Q
+#accounts.apps
 from accounts.models import *
 from accounts.forms import *
 from accounts.mixins import *
+
+# django
+from django.shortcuts import render, redirect
+from django.views.generic import View, TemplateView
+from django.contrib.auth import authenticate, login, logout
+from django.db.models import Q
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.crypto import get_random_string
+
+
+# django verification
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.core.mail import EmailMessage
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+
+# python
 from random import randint
+
 
 class LoginView(AnonymousRequiredMixin, View):
 
@@ -48,6 +63,7 @@ class LoginView(AnonymousRequiredMixin, View):
             }
             return render(request, 'accounts/authenticate.html', context)
 
+
 class RegisterView(AnonymousRequiredMixin, View):
 
     def post(self, request):
@@ -75,6 +91,7 @@ class RegisterView(AnonymousRequiredMixin, View):
                 'form': RegisterForm()
             })
             return render(request, 'accounts/authenticate.html', context)
+
 
 class CreateAccountView(AnonymousRequiredMixin, View):
 
@@ -128,6 +145,81 @@ class CreateAccountView(AnonymousRequiredMixin, View):
         else:
             return redirect('home:home')
 
+class EmailCheckView(AnonymousRequiredMixin, View):
+
+    def get(self, request):
+        form = EmailCheckForm()
+        return render(request, 'accounts/authenticate.html', context={'form':form})
+
+    def post(self, request):
+        form = EmailCheckForm(data=request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            _user = User.objects.filter(Q(email=cleaned_data['email']))
+            if _user.exists():
+                user, subject = _user.first(), 'reset your password'
+                EmailMessage(
+                    subject,
+                    render_to_string(
+                        template_name='accounts/check_email.html',
+                        context={
+                            'user':user,
+                            'domain':get_current_site(request),
+                            'uid':urlsafe_base64_encode(force_bytes(user.pk)),
+                            'token':default_token_generator.make_token(user)
+                        }
+                    ),
+                    to=[user.email]
+                ).send()
+                messages.success(request, 'Password reset email has been sent to your email address')
+                return redirect('accounts:login')
+            else:
+                form.add_error('email', 'this email is not exists')
+        return render(request, 'accounts/authenticate.html', context={'form':form})
+
+class ResetPasswordView(AnonymousRequiredMixin, View):
+
+    def get(self, request, uidb64, token):
+        try:
+            u_id = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=u_id)
+        except(User.DoesNotExist, ValueError, TypeError, OverflowError):
+            user = None
+        if user is not None and default_token_generator.check_token(user, token):
+            request.session['uid'] = u_id
+            messages.success(request, 'reset your password')
+            return redirect('accounts:setpassword')
+        else:
+            messages.error(request, 'The link has been expired')
+            return redirect('accounts:login')
+
+class SetPasswordView(AnonymousRequiredMixin, View):
+
+    def post(self, request):
+        _user = User.objects.filter(Q(pk=request.session['uid']))
+        if _user.exists():
+            user = _user.first()
+            form = SetPasswordForm(data=request.POST)
+            if form.is_valid():
+                cleaned_data = form.cleaned_data
+                if cleaned_data['password1'] == cleaned_data['password2']:
+                    user.set_password(cleaned_data.get('password1'))
+                    user.save()
+                    messages.success(request, 'password reset successfully')
+                    return redirect('accounts:login')
+                else:
+                    form.add_error('password1', 'password do not match')
+            return render(request, 'accounts/authenticate.html', context={'form':form})
+        else:
+            return redirect('accounts:login')
+
+    def get(self, request):
+        if User.objects.filter(Q(pk=request.session['uid'])).exists():
+            form = SetPasswordForm()
+            return render(request, 'accounts/authenticate.html', context={'form':form})
+        else:
+            return redirect('accounts:login')
+
 class ChangePasswordView(LoginRequiredMixin, View):
 
     def get(self, request):
@@ -155,9 +247,76 @@ class ChangePasswordView(LoginRequiredMixin, View):
         return render(request, 'accounts/authenticate.html', context={'form':form})
 
 
+class GeneratorEmailVerifyView(LoginRequiredMixin, View):
+
+    def get(self, request):
+        VerifyEmailCode.verify_email_code_clean()
+        if not request.user.is_email_verify:
+            trash = VerifyEmailCode.objects.filter(Q(user__phone__exact=request.user.phone))
+            if not trash.exists():
+                code, subject = randint(111111, 999999), 'verification email'
+                template_name, context,  = 'accounts/verify_email.html', {
+                    'code':code,
+                    'user':request.user
+                }
+                EmailMessage(
+                    subject,
+                    render_to_string(template_name, context),
+                    to=[request.user.email]
+                ).send()
+                messages.success(request, 'email verification has been sent to your email address')
+                VerifyEmailCode.objects.create(code=code, user_id=request.user.id).save()
+                return redirect('accounts:email-verify')
+            else:
+                trash.delete()
+        else:
+            logout(request)
+            return redirect('accounts:login')
+
+
+class EmailVerifyView(LoginRequiredMixin, View):
+
+    def get(self, request):
+        VerifyEmailCode.verify_email_code_clean()
+        _email_object = VerifyEmailCode.objects.filter(Q(user__phone__exact=request.user.phone))
+        if _email_object.exists():
+            context = dict({
+                'form': VerifyEmailForm()
+            })
+            return render(request, 'accounts/authenticate.html', context)
+        else:
+            return redirect('home:home')
+
+    def post(self, request):
+        VerifyEmailCode.verify_email_code_clean()
+        _email_object = VerifyEmailCode.objects.filter(Q(user__phone__exact=request.user.phone))
+        if _email_object.exists():
+            form = VerifyEmailForm(data=request.POST)
+            if form.is_valid():
+                cleaned_data = form.cleaned_data
+                if _email_object.first().code == int(cleaned_data['code']) and _email_object.first().user_id == request.user.id:
+                    user = User.objects.filter(
+                        Q(phone__exact=request.user.phone) &
+                        Q(email__exact=_email_object.first().user.email)
+                    ).first()
+                    user.is_email_verify = True
+                    user.save()
+                    _email_object.first().delete()
+                    return redirect('home:home')
+                else:
+                    form.add_error('code', 'invalid code')
+            return render(request, 'accounts/authenticate.html', context={'form':form})
+        else:
+            return redirect('home:home')
+
+
+
 class LogoutView(View):
 
     def get(self, request):
         logout(request)
         messages.success(request, 'successfully logout')
         return redirect('home:home')
+
+class ForgotPassView(AnonymousRequiredMixin, TemplateView):
+    template_name = 'accounts/authenticate.html'

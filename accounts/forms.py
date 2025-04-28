@@ -26,6 +26,7 @@ class UserCreationForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=True)
         user.set_password(self.cleaned_data.get('password1'))
+        user.save()
 
 class UserChangeForm(forms.ModelForm):
 
@@ -112,6 +113,29 @@ class ChangePasswordForm(forms.Form):
     )
     password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'confirmation password'})
+    )
+
+    def clean_password1(self):
+        return PasswordValidation.password_validator(self.cleaned_data.get('password1'))
+
+class VerifyEmailForm(forms.Form):
+    code = forms.CharField(
+        validators=(validators.MaxLengthValidator(6), validators.MinLengthValidator(6),),
+        widget=forms.NumberInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'code'})
+    )
+
+class EmailCheckForm(forms.Form):
+    email = forms.CharField(
+        validators=(validators.EmailValidator,),
+        widget=forms.EmailInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder': 'Enter Your Email'})
+    )
+
+class SetPasswordForm(forms.Form):
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'new password'})
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class':'stext-111 cl2 plh3 size-116 p-l-62 p-r-30', 'placeholder':'new password confirmation'})
     )
 
     def clean_password1(self):

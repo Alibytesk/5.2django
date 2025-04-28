@@ -1,17 +1,24 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% block title %} {% if request.resolver_match.url_name == 'create-account' %} Register {% elif request.resolver_match.url_name == 'change-password' %} Change Password {% else %} {{ request.resolver_match.url_name|title }} {% endif %} {% endblock %}
+{% block title %} {% if request.resolver_match.url_name == 'create-account' %} Register
+{% elif request.resolver_match.url_name == 'change-password' %} Change Password
+{% elif request.resolver_match.url_name == 'email-verify' %} Email Verification {% else %}
+    {{ request.resolver_match.url_name|title }} {% endif %} {% endblock %}
 {% block content %}
-	<!-- authentication page -->
-	<section class="bg0 p-t-104 p-b-116">
-		<div class="container">
-			<div class="flex-w flex-tr justify-content-center">
-				<div class="size-210 bor10 p-lr-70 p-t-55 p-b-70 p-lr-15-lg w-full-md">
-					<form method="post">
+    <!-- authentication page -->
+    <section class="bg0 p-t-104 p-b-116">
+        <div class="container">
+            <div class="flex-w flex-tr justify-content-center">
+                <div class="size-210 bor10 p-lr-70 p-t-55 p-b-70 p-lr-15-lg w-full-md">
+                    <form method="post">
                         {% csrf_token %}
-						<h4 class="mtext-105 cl2 txt-center p-b-30">
-							{% if request.resolver_match.url_name == 'create-account' %} Register {% elif request.resolver_match.url_name == 'change-password' %} Change Password {% else %} {{ request.resolver_match.url_name|title }} {% endif %}
-						</h4>
+                        <h4 class="mtext-105 cl2 txt-center p-b-30">
+                            {% if request.resolver_match.url_name == 'create-account' %}
+                                Register {% elif request.resolver_match.url_name == 'change-password' %} Change
+                                Password {% elif request.resolver_match.url_name == 'email-verify' %} Email
+                                Verification {% elif request.resolver_match.url_name == 'forgot-pass' %} {% elif request.resolver_match.url_name == 'forgot-password' %}
+                                Forgot Password {% else %} {{ request.resolver_match.url_name|title }} {% endif %}
+                        </h4>
                         {% for field in form %}
                             {% if field.errors %}
                                 <div class="text-danger small">{{ field.errors }}</div>
@@ -21,17 +28,30 @@
                             </div>
                         {% endfor %}
                         {% if request.resolver_match.url_name == 'login' %}
-                            <a href="#">Forgot password</a> <br />
+                            <a href="#">Forgot password</a> <br/>
                             <a href="#">Register</a>
                         {% elif request.resolver_match.url_name == 'register' %}
                             <a href="#">Login</a>
                         {% endif %}
-						<button class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer" style="margin-top: 20px">
-							{% if request.resolver_match.url_name == 'create-account' %} REGISTER {% elif request.resolver_match.url_name == 'change-password' %} Change {% else %} {{ request.resolver_match.url_name }} {% endif %}
-						</button>
-					</form>
-				</div>
-			</div>
-		</div>
-	</section>
+                        {% if not request.resolver_match.url_name == 'forgot-pass' %}
+                            <button class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer"
+                                    style="margin-top: 20px">
+                                {% if request.resolver_match.url_name == 'create-account' %}
+                                    REGISTER {% elif request.resolver_match.url_name == 'change-password' %}
+                                    Change {% elif request.resolver_match.url_name == 'email-verify' %}
+                                    verify {% elif request.resolver_match.url_name == 'forgot-password' %}
+                                    send {% else %} {{ request.resolver_match.url_name }} {% endif %}
+                            </button>
+                        {% else %}
+                            <a href="#"
+                               class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer">Phone</a>
+                            <a href="{% url 'accounts:forgot-password' %}"
+                               class="flex-c-m stext-101 cl0 size-121 bg3 bor1 hov-btn3 p-lr-15 trans-04 pointer"
+                               style="margin-top: 20px">Email</a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
 {% endblock %}
