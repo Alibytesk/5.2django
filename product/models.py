@@ -13,34 +13,37 @@ class Product(ProductAbstractBase):
     stock = models.IntegerField(default=0)
     price = models.FloatField()
     discount = models.FloatField()
-    category = models.ManyToManyField(Category, related_name='product')
-    color = models.ManyToManyField(Color, related_name='product')
+    category = models.ManyToManyField(Category, related_name='category')
+    color = models.ManyToManyField(Color, related_name='size')
     is_new = models.BooleanField(default=False)
     is_on_banner = models.BooleanField(default=False)
 
     def get_absolute_url(self):
-        return reverse('products:detail', **{'slug':self.slug})
+        return reverse('product:detail', kwargs={'slug':self.slug})
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
+    def get_price(self):
+        if self.discount:
+            return self.price - ((self.price * self.discount) / 100)
+        return self.price
+
     def __str__(self):
         return f"{self.title} {self.description[:30]}..."
 
-class ProductRelational(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
-    class Meta:
-        abstract = True
-
-class ProductImage(ProductRelational):
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products_images', null=True, blank=True)
 
-class ProductBanner(ProductRelational):
+class ProductBanner(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products_banner_images')
 
-class ProductInformation(ProductRelational):
+class ProductInformation(models.Model):
+    product = models.ForeignKey(Product, related_name='informations', on_delete=models.CASCADE)
     text = models.TextField()
 
     def __str__(self):
