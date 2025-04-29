@@ -1,5 +1,6 @@
 from django.db import models
 from product.abstract import *
+from accounts.models import User
 from django.urls import reverse
 from django.utils.text import slugify
 
@@ -48,3 +49,19 @@ class ProductInformation(models.Model):
 
     def __str__(self):
         return f'{self.text[:30]}...'
+
+
+class ProductComment(ProductAbstractBase):
+    parent = models.ForeignKey(
+        'self',
+        related_name='productcomment',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    comment = models.TextField()
+
+    def __str__(self):
+        return f"{self.user.username} -> {self.product.title} | {self.comment[:30]}..."
