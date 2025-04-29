@@ -40,7 +40,7 @@ class ProductImage(models.Model):
     image = models.ImageField(upload_to='products_images', null=True, blank=True)
 
 class ProductBanner(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='banner_images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products_banner_images')
 
 class ProductInformation(models.Model):

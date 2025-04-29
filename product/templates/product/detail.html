@@ -2,8 +2,7 @@
 {% load static %}
 {% block title %} {{ object.title }} {% endblock %}
 {% block content %}
-
-		
+    <br style="margin-top: 30px" />
 
 	<!-- Product Detail -->
 	<section class="sec-product-detail bg0 p-t-65 p-b-60">
@@ -285,7 +284,7 @@
 									</a>
 
 									<span class="stext-105 cl3">
-										{% if not object.discount %}
+										{% if not i.discount %}
                                             {{ i.price }}
                                         {% else %}
                                             <p> <s>${{ i.price }}</s>${{ i.get_price }} <sub class="badge bg-danger">%{{ i.discount }}</sub> </p>
