@@ -84,9 +84,9 @@
 									</div>
                                     <div class="flex-w">
                                         {% if is_liked %}
-                                        <a onclick="like('{{ object.slug }}', '{{ object.id }}')" style="cursor: pointer"><i id="like" class="fa fa-heart" style="font-size: 30px"><span id="counter" style="margin-left: 6px; font-size: 20px;">{{ object.likes.count }}</span></i></a>
+                                        <a {% if request.user.is_authenticated %} onclick="like('{{ object.slug }}', '{{ object.id }}')" {% else %} href="{% url 'accounts:login' %}" {% endif %} style="cursor: pointer"><i id="like" class="fa fa-heart" style="font-size: 30px"><span id="counter" style="margin-left: 6px; font-size: 20px;">{{ object.likes.count }}</span></i></a>
                                         {% else %}
-                                        <a onclick="like('{{ object.slug }}', '{{ object.id }}')" style="cursor: pointer"><i id="like" class="fa fa-heart-o" style="font-size: 30px"><span id="counter" style="margin-left: 6px; font-size: 20px;">{{ object.likes.count }}</span></i></a>
+                                        <a {% if request.user.is_authenticated %} onclick="like('{{ object.slug }}', '{{ object.id }}')" {% else %} href="{% url 'accounts:login' %}" {% endif %} style="cursor: pointer"><i id="like" class="fa fa-heart-o" style="font-size: 30px"><span id="counter" style="margin-left: 6px; font-size: 20px;">{{ object.likes.count }}</span></i></a>
                                         {% endif %}
                                     </div>
 

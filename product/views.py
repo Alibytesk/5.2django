@@ -15,13 +15,16 @@ class ProductDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         self.object = self.get_object()
-        if self.request.user.likes.filter(
-            Q(product=self.object) &
-            Q(user=self.request.user)
-        ).exists():
-            context['is_liked'] = True
-        else:
+        if not self.request.user.is_authenticated:
             context['is_liked'] = False
+        else:
+            if self.request.user.likes.filter(
+                Q(product=self.object) &
+                Q(user=self.request.user)
+            ).exists():
+                context['is_liked'] = True
+            else:
+                context['is_liked'] = False
         context['suggestion'] = Product.objects.filter(
             Q(discount__in=range(1, 30)) &
             Q(is_new=True)

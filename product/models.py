@@ -9,6 +9,7 @@ from django.utils.text import slugify
 class Product(ProductAbstractBase):
     slug = models.SlugField(unique=True, blank=True, null=True)
     title = models.CharField(max_length=255)
+    pure_title = models.CharField(max_length=255, null=True, blank=True)
     sub_title = models.CharField(max_length=255, null=True, blank=True)
     description = models.TextField()
     stock = models.IntegerField(default=0)

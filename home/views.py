@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.db.models import Q
 from product.models import Product
+from django.core.paginator import Paginator
 
 class HomeTemplateView(TemplateView):
     template_name = 'home/index.html'
@@ -9,4 +10,9 @@ class HomeTemplateView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['main'] = Product.objects.filter(Q(is_on_banner=True))
+        context['items'] = Product.objects.filter(
+            Q(pure_title='16thgenerationiPhone') |
+            Q(pure_title='macbook') |
+            Q(pure_title='airpod')
+        )
         return context
