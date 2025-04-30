@@ -13,7 +13,10 @@ class ProductDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['suggestion'] = Product.objects.filter(Q(is_new=True))
+        context['suggestion'] = Product.objects.filter(
+            Q(discount__in=range(1, 30)) &
+            Q(is_new=True)
+        )
         return context
 
     def post(self, request, *args, **kwargs):
