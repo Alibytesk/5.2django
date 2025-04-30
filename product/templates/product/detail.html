@@ -41,7 +41,7 @@
 							{% if not object.discount %}
                                 {{ object.price }}
                             {% else %}
-                                <p> <s>${{ object.price }}</s>     ${{ object.get_price }} <sub class="badge bg-danger">%{{ object.discount }}</sub> </p>
+                                <p> <s>${{ object.price }}</s>${{ object.get_price }} <sub class="badge bg-danger">%{{ object.discount }}</sub> </p>
                             {% endif %}
 						</span>
 
@@ -82,6 +82,13 @@
 											<i class="fs-16 zmdi zmdi-plus"></i>
 										</div>
 									</div>
+                                    <div class="flex-w">
+                                        {% if is_liked %}
+                                        <a onclick="like('{{ object.slug }}', '{{ object.id }}')" style="cursor: pointer"><i id="like" class="fa fa-heart" style="font-size: 30px"><span id="counter" style="margin-left: 6px; font-size: 20px;">{{ object.likes.count }}</span></i></a>
+                                        {% else %}
+                                        <a onclick="like('{{ object.slug }}', '{{ object.id }}')" style="cursor: pointer"><i id="like" class="fa fa-heart-o" style="font-size: 30px"><span id="counter" style="margin-left: 6px; font-size: 20px;">{{ object.likes.count }}</span></i></a>
+                                        {% endif %}
+                                    </div>
 
 									<button class="flex-c-m stext-101 cl0 size-101 bg1 bor1 hov-btn1 p-lr-15 trans-04 js-addcart-detail">
 										Add to cart
@@ -291,13 +298,6 @@
                                             <p> <s>${{ i.price }}</s>${{ i.get_price }} <sub class="badge bg-danger">%{{ i.discount }}</sub> </p>
                                         {% endif %}
 									</span>
-								</div>
-
-								<div class="block2-txt-child2 flex-r p-t-3">
-									<a href="#" class="btn-addwish-b2 dis-block pos-relative js-addwish-b2">
-										<img class="icon-heart1 dis-block trans-04" src="{% static 'images/icons/icon-heart-01.png' %}" alt="ICON">
-										<img class="icon-heart2 dis-block trans-04 ab-t-l" src="{% static 'images/icons/icon-heart-02.png' %}" alt="ICON">
-									</a>
 								</div>
 							</div>
 						</div>

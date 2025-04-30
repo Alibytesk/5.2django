@@ -1,8 +1,9 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic.detail import DetailView
 from django.db.models import Q
 from django.urls import reverse
-from product.models import Product, ProductComment
+from product.models import Product, ProductComment, Like
 
 class ProductDetailView(DetailView):
     model = Product
@@ -13,6 +14,14 @@ class ProductDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        self.object = self.get_object()
+        if self.request.user.likes.filter(
+            Q(product=self.object) &
+            Q(user=self.request.user)
+        ).exists():
+            context['is_liked'] = True
+        else:
+            context['is_liked'] = False
         context['suggestion'] = Product.objects.filter(
             Q(discount__in=range(1, 30)) &
             Q(is_new=True)
@@ -30,3 +39,11 @@ class ProductDetailView(DetailView):
                 user=request.user
             )
         return redirect(reverse('product:detail', kwargs={'slug':self.object.slug}))
+
+def like(request, slug, id):
+    try:
+        Like.objects.get(product__slug=slug, user=request.user).delete()
+        return JsonResponse(dict({'response':'unliked'}))
+    except:
+        Like.objects.create(product_id=id, user=request.user)
+        return JsonResponse(dict({'response':'liked'}))
