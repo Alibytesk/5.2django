@@ -19,6 +19,7 @@ class Product(ProductAbstractBase):
     color = models.ManyToManyField(Color, related_name='size')
     is_new = models.BooleanField(default=False)
     is_on_banner = models.BooleanField(default=False)
+    is_top_3 = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse('product:detail', kwargs={'slug':self.slug})

@@ -15,4 +15,5 @@ class HomeTemplateView(TemplateView):
             Q(pure_title='macbook') |
             Q(pure_title='airpod')
         )
+        context['top3'] = Product.objects.filter(is_top_3=True)
         return context
