@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from product.abstract import *
 from accounts.models import User
 from django.urls import reverse
@@ -20,12 +21,23 @@ class Product(ProductAbstractBase):
     is_new = models.BooleanField(default=False)
     is_on_banner = models.BooleanField(default=False)
     is_top_3 = models.BooleanField(default=False)
+    pricerange = models.ForeignKey(
+        PriceRange,
+        related_name='pricerange',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
 
     def get_absolute_url(self):
         return reverse('product:detail', kwargs={'slug':self.slug})
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
+        if not self.pricerange:
+            self.pricerange = PriceRange.objects.filter(
+                Q(a__lte=self.price, b__gte=self.price)
+            ).first()
         super().save(*args, **kwargs)
 
     def get_price(self):

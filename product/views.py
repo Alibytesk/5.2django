@@ -55,7 +55,57 @@ def like(request, slug, id):
 
 
 def products(request):
-    objects = Product.objects.all()
-    paginator = Paginator(objects, 8)
+    sort_param = request.GET.get('sort')
+    if sort_param == 'low-to-high':
+        sort = 'price'
+    elif sort_param == 'high-to-low':
+        sort = '-price'
+    else:
+        sort = None
+    per_page = None
+    aprice = request.GET.get('aprice')
+    bprice = request.GET.get('bprice')
+    color = request.GET.get('color')
+
+    try:
+        aprice = float(aprice) if aprice else None
+        bprice = float(bprice) if bprice else None
+    except ValueError:
+        aprice = bprice = None
+
+    if color:
+        if aprice is not None and bprice is not None:
+            objects = Product.objects.filter(
+                Q(pricerange__a__lte=aprice) &
+                Q(pricerange__b__gte=bprice) &
+                Q(color__title__icontains=color)
+            )
+        else:
+            objects = Product.objects.filter(
+                color__title__icontains=color
+            )
+        per_page = 4
+
+    elif aprice is not None and bprice is not None:
+        objects = Product.objects.filter(
+            Q(pricerange__a__lte=aprice) &
+            Q(pricerange__b__gte=bprice)
+        )
+        per_page = 4
+
+    else:
+        objects = Product.objects.all()
+
+    if sort is not None:
+        objects = objects.order_by(sort)
+
+    if per_page is None:
+        per_page = 8
+
+    paginator = Paginator(objects, per_page)
     objects = paginator.get_page(request.GET.get('page'))
-    return render(request, 'product/product_list.html', context={'objects':objects})
+
+    context = {
+        'objects': objects,
+    }
+    return render(request, 'product/product_list.html', context)

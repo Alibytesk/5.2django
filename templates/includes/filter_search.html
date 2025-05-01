@@ -54,38 +54,21 @@
 							</div>
 
 							<ul>
-								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04">
-										Default
-									</a>
-								</li>
 
 								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04">
-										Popularity
-									</a>
-								</li>
-
-								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04">
-										Average rating
-									</a>
-								</li>
-
-								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04 filter-link-active">
+									<a href="{% url 'product:products' %}?sort=new{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.aprice and request.GET.bprice %}&aprice={{ request.GET.aprice }}&bprice={{ request.GET.bprice }}{% endif %}" class="filter-link stext-106 trans-04 filter-link-active">
 										Newness
 									</a>
 								</li>
 
 								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04">
+									<a href="{% url 'product:products' %}?sort=low-to-high{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.aprice and request.GET.bprice %}&aprice={{ request.GET.aprice }}&bprice={{ request.GET.bprice }}{% endif %}" class="filter-link stext-106 trans-04">
 										Price: Low to High
 									</a>
 								</li>
 
 								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04">
+                                    <a href="{% url 'product:products' %}?sort=high-to-low{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.aprice and request.GET.bprice %}&aprice={{ request.GET.aprice }}&bprice={{ request.GET.bprice }}{% endif %}" class="filter-link stext-106 trans-04">
 										Price: High to Low
 									</a>
 								</li>
@@ -99,40 +82,18 @@
 
 							<ul>
 								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04 filter-link-active">
+									<a href="" class="filter-link stext-106 trans-04 {% if not request.GET.aprice or not request.GET.bprice %}filter-link-active {% endif %}">
 										All
 									</a>
 								</li>
-
+                                {% for i in pricerange %}
 								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04">
-										$0.00 - $50.00
+									<a href="{% url 'product:products' %}?aprice={{ i.a }}&bprice={{ i.b }}{% if request.GET.color %}&color={{ request.GET.color }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="filter-link stext-106 trans-04 {% if request.GET.aprice == i.a_to_str %}filter-link-active{% endif %}">
+										${{ i.a }}0 - ${{ i.b }}0
 									</a>
-								</li>
 
-								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04">
-										$50.00 - $100.00
-									</a>
 								</li>
-
-								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04">
-										$100.00 - $150.00
-									</a>
-								</li>
-
-								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04">
-										$150.00 - $200.00
-									</a>
-								</li>
-
-								<li class="p-b-6">
-									<a href="#" class="filter-link stext-106 trans-04">
-										$200.00+
-									</a>
-								</li>
+                                {% endfor %}
 							</ul>
 						</div>
 
@@ -142,95 +103,20 @@
 							</div>
 
 							<ul>
+                                {% for i in colors %}
 								<li class="p-b-6">
-									<span class="fs-15 lh-12 m-r-6" style="color: #222;">
+									<span class="fs-15 lh-12 m-r-6" style="color: #{{ i.color_code }};">
 										<i class="zmdi zmdi-circle"></i>
 									</span>
 
-									<a href="#" class="filter-link stext-106 trans-04">
-										Black
+									<a href="{% url 'product:products' %}?color={{ i.title }}{% if request.GET.aprice and request.GET.bprice %}&aprice={{ request.GET.aprice }}&bprice={{ request.GET.bprice }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}" class="filter-link stext-106 trans-04 {% if request.GET.color == i.title %}filter-link-active {% endif %}">
+										{{ i.title }}
 									</a>
 								</li>
-
-								<li class="p-b-6">
-									<span class="fs-15 lh-12 m-r-6" style="color: #4272d7;">
-										<i class="zmdi zmdi-circle"></i>
-									</span>
-
-									<a href="#" class="filter-link stext-106 trans-04 filter-link-active">
-										Blue
-									</a>
-								</li>
-
-								<li class="p-b-6">
-									<span class="fs-15 lh-12 m-r-6" style="color: #b3b3b3;">
-										<i class="zmdi zmdi-circle"></i>
-									</span>
-
-									<a href="#" class="filter-link stext-106 trans-04">
-										Grey
-									</a>
-								</li>
-
-								<li class="p-b-6">
-									<span class="fs-15 lh-12 m-r-6" style="color: #00ad5f;">
-										<i class="zmdi zmdi-circle"></i>
-									</span>
-
-									<a href="#" class="filter-link stext-106 trans-04">
-										Green
-									</a>
-								</li>
-
-								<li class="p-b-6">
-									<span class="fs-15 lh-12 m-r-6" style="color: #fa4251;">
-										<i class="zmdi zmdi-circle"></i>
-									</span>
-
-									<a href="#" class="filter-link stext-106 trans-04">
-										Red
-									</a>
-								</li>
-
-								<li class="p-b-6">
-									<span class="fs-15 lh-12 m-r-6" style="color: #aaa;">
-										<i class="zmdi zmdi-circle-o"></i>
-									</span>
-
-									<a href="#" class="filter-link stext-106 trans-04">
-										White
-									</a>
-								</li>
+                                {% endfor %}
 							</ul>
 						</div>
 
-						<div class="filter-col4 p-b-27">
-							<div class="mtext-102 cl2 p-b-15">
-								Tags
-							</div>
-
-							<div class="flex-w p-t-4 m-r--5">
-								<a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-									Fashion
-								</a>
-
-								<a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-									Lifestyle
-								</a>
-
-								<a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-									Denim
-								</a>
-
-								<a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-									Streetstyle
-								</a>
-
-								<a href="#" class="flex-c-m stext-107 cl6 size-301 bor7 p-lr-15 hov-tag1 trans-04 m-r-5 m-b-5">
-									Crafts
-								</a>
-							</div>
-						</div>
 					</div>
 				</div>
 			</div>

@@ -16,6 +16,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('title', 'stock', 'price', 'discount', 'is_on_banner', 'is_new')
     inlines = (ProductImageAdmin, ProductBannerAdmin , ProductInformationAdmin,)
 
-@admin.register(ProductComment, Like, Category, Color)
+@admin.register(ProductComment, Like, PriceRange, Category, Color)
 class Admin(admin.ModelAdmin):
     pass
+

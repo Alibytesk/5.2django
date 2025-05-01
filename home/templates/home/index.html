@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load render_partial %}
 {% block title %} {{ request.resolver_match.url_name }} {% endblock %}
 {% block content %}
 	<!-- Slider -->
@@ -79,7 +80,7 @@
 			</div>
 
 			<!--start filter and search-->
-            {% include 'includes/filter_search.html' %}
+            {% render_partial 'home:render_partial_for_objects_view' %}
 			<!--end filter and search-->
 
 			<div class="row isotope-grid">

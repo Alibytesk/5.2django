@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.db.models import Q
 from product.models import Product
+from product.abstract import PriceRange, Color
 from django.core.paginator import Paginator
 
 class HomeTemplateView(TemplateView):
@@ -17,3 +18,10 @@ class HomeTemplateView(TemplateView):
         )
         context['top3'] = Product.objects.filter(is_top_3=True)
         return context
+
+def render_partial_for_objects_view(request):
+    context = {
+        'pricerange': PriceRange.objects.all(),
+        'colors': Color.objects.all(),
+    }
+    return render(request, 'includes/filter_search.html', context)
