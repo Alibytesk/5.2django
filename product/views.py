@@ -1,8 +1,10 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 from django.db.models import Q
 from django.urls import reverse
+from django.core.paginator import Paginator
 from product.models import Product, ProductComment, Like
 
 class ProductDetailView(DetailView):
@@ -50,3 +52,10 @@ def like(request, slug, id):
     except:
         Like.objects.create(product_id=id, user=request.user)
         return JsonResponse(dict({'response':'liked'}))
+
+
+def products(request):
+    objects = Product.objects.all()
+    paginator = Paginator(objects, 8)
+    objects = paginator.get_page(request.GET.get('page'))
+    return render(request, 'product/product_list.html', context={'objects':objects})

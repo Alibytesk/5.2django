@@ -1,0 +1,73 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %} {{ request.resolver_match.url_name }} {% endblock %}
+{% block content %}
+	<!-- Product -->
+	<div class="bg0 m-t-23 p-b-140" style="margin-top: 80px">
+		<div class="container">
+			<!--start filter & search-->
+            {% include 'includes/filter_search.html' %}
+			<!--end filter & search-->
+
+			<div class="row isotope-grid">
+                {% for i in objects %}
+				<div class="col-sm-6 col-md-4 col-lg-3 p-b-35 isotope-item">
+					<!-- Block2 -->
+					<div class="block2">
+						<div class="block2-pic hov-img0">
+                            {% with i.images.all|first as f %}
+							<img src="{{ f.image.url }}" alt="IMG-PRODUCT">
+                            {% endwith %}
+							<a href="{{ i.get_absolute_url }}" class="block2-btn flex-c-m stext-103 cl2 size-102 bg0 bor2 hov-btn1 p-lr-15 trans-04">
+								Quick View
+							</a>
+						</div>
+
+						<div class="block2-txt flex-w flex-t p-t-14">
+							<div class="block2-txt-child1 flex-col-l ">
+								<a href="{{ i.get_absolute_url }}" class="stext-104 cl4 hov-cl1 trans-04 js-name-b2 p-b-6">
+									{{ i.pure_title }}
+								</a>
+
+								<span class="stext-105 cl3">
+                                    {% if not i.discount %}
+                                        {{ i.price }}
+                                    {% else %}
+                                        <p> <s>${{ i.price }}</s>${{ i.get_price }} <sub class="badge bg-danger">%{{ i.discount }}</sub> </p>
+                                    {% endif %}
+								</span>
+							</div>
+
+						</div>
+					</div>
+				</div>
+                {% endfor %}
+			</div>
+
+            <nav aria-label="Page navigation example">
+                {% if objects.has_other_pages %}
+              <ul class="pagination justify-content-center">
+                {% if objects.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ objects.previous_page_number }}">Previous</a></li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                {% endif %}
+                {% for i in objects.paginator.page_range %}
+                    {% if i == objects.number %}
+                    <li class="page-item active btn-dark"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                    {% else %}
+                    <li class="page-item btn-dark"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                {% if objects.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ objects.next_page_number }}">Next</a></li>
+                {% else %}
+                <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+                {% endif %}
+              </ul>
+                {% endif %}
+            </nav>
+
+		</div>
+	</div>
+{% endblock %}
