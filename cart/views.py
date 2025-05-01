@@ -12,13 +12,18 @@ class CartDetailView(View):
         return render(request, self.template_name, context={'cart':cart})
 
 
-
 class AddToCartView(View):
 
     def post(self, request, id):
         product = Product.objects.get(pk=id)
         quantity, color = self.request.POST.get('quantity'), self.request.POST.get('color')
         print(quantity, color, product.title)
-        cart = Cart(self.request)
-        cart.add(product, quantity, color)
+        Cart(self.request).add(product, quantity, color)
         return redirect('product:detail', product.slug)
+
+
+class DeleteFromView(View):
+
+    def get(self, request, un_id):
+        Cart(self.request).delete(un_id=un_id)
+        return redirect('cart:cart')
