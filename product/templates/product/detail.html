@@ -25,7 +25,6 @@
 									</div>
 								</div>
                                 {% endfor %}
-
 							</div>
 						</div>
 					</div>
@@ -33,6 +32,8 @@
 					
 				<div class="col-md-6 col-lg-5 p-b-30">
 					<div class="p-r-50 p-t-5 p-lr-0-lg">
+                        <form method="post" action="{% url 'cart:add' object.id %}">
+                        {% csrf_token %}
 						<h4 class="mtext-105 cl2 js-name-detail p-b-14">
 							{{ object.title }}
 						</h4>
@@ -49,7 +50,7 @@
                             {{ object.description }}
 						</p>
 						
-						<!--  -->
+						<!-- color -->
 						<div class="p-t-33">
 							<div class="flex-w flex-r-m p-b-10">
 								<div class="size-203 flex-c-m respon6">
@@ -58,7 +59,7 @@
 
 								<div class="size-204 respon6-next">
 									<div class="rs1-select2 bor8 bg0">
-										<select class="js-select2" name="time">
+										<select class="js-select2" name="color">
 											<option>Choose an option</option>
                                             {% for i in object.color.all %}
 											<option>{{ i.title }}</option>
@@ -76,7 +77,7 @@
 											<i class="fs-16 zmdi zmdi-minus"></i>
 										</div>
 
-										<input class="mtext-104 cl3 txt-center num-product" type="number" name="num-product" value="1">
+										<input class="mtext-104 cl3 txt-center num-product" type="number" name="quantity" value="1">
 
 										<div class="btn-num-product-up cl8 hov-btn3 trans-04 flex-c-m">
 											<i class="fs-16 zmdi zmdi-plus"></i>
@@ -84,9 +85,9 @@
 									</div>
                                     <div class="flex-w">
                                         {% if is_liked %}
-                                        <a {% if request.user.is_authenticated %} onclick="like('{{ object.slug }}', '{{ object.id }}')" {% else %} href="{% url 'accounts:login' %}" {% endif %} style="cursor: pointer"><i id="like" class="fa fa-heart" style="font-size: 30px"><span id="counter" style="margin-left: 6px; font-size: 20px;">{{ object.likes.count }}</span></i></a>
+                                            <a {% if request.user.is_authenticated %} onclick="like('{{ object.slug }}', '{{ object.id }}')" {% else %} href="{% url 'accounts:login' %}" {% endif %} style="cursor: pointer"><i id="like" class="fa fa-heart" style="font-size: 30px"><span id="counter" style="margin-left: 6px; font-size: 20px;">{{ object.likes.count }}</span></i></a>
                                         {% else %}
-                                        <a {% if request.user.is_authenticated %} onclick="like('{{ object.slug }}', '{{ object.id }}')" {% else %} href="{% url 'accounts:login' %}" {% endif %} style="cursor: pointer"><i id="like" class="fa fa-heart-o" style="font-size: 30px"><span id="counter" style="margin-left: 6px; font-size: 20px;">{{ object.likes.count }}</span></i></a>
+                                            <a {% if request.user.is_authenticated %} onclick="like('{{ object.slug }}', '{{ object.id }}')" {% else %} href="{% url 'accounts:login' %}" {% endif %} style="cursor: pointer"><i id="like" class="fa fa-heart-o" style="font-size: 30px"><span id="counter" style="margin-left: 6px; font-size: 20px;">{{ object.likes.count }}</span></i></a>
                                         {% endif %}
                                     </div>
 
@@ -96,6 +97,7 @@
 								</div>
 							</div>	
 						</div>
+                        </form>
 
 						<!--  -->
 						<div class="flex-w flex-m p-l-100 p-t-40 respon7">
